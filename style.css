@@ -74,6 +74,13 @@ body {
     padding: 20px;
   }
 
+  .image-footer {
+    width: 100%;
+    height: auto;
+  }
+  
+  
+
   /* Estilos para o ícone do LinkedIn */
 .linkedin-icon {
     width: 24px;
