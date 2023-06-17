@@ -1,14 +1,14 @@
 {
-    "short_name": "MyPWA",
-    "name": "My Progressive Web App",
+    "short_name": "Portifólio Tairone",
+    "name": "Portifólio PWA",
     "icons": [
       {
-        "src": "/images/icon-192x192.png",
+        "src": "logo.png",
         "type": "image/png",
         "sizes": "192x192"
       },
       {
-        "src": "/images/icon-512x512.png",
+        "src": "logo.png",
         "type": "image/png",
         "sizes": "512x512"
       }
