@@ -7,7 +7,9 @@ self.addEventListener('install', function(event) {
         '/',
         '/index.html',
         '/style.css',
-        '/script.js'
+        '/script.js',
+        '/bootstrap.min.css',
+        '/bootstrap.min.js',
       ]);
     })
   );
