@@ -9,38 +9,7 @@ if ('serviceWorker' in navigator) {
 }
 
 
-const projectForm = document.getElementById("project-form");
-const projectNameInput = document.getElementById("project-name");
-const projectDescInput = document.getElementById("project-description");
-const dueDateInput = document.getElementById("due-date");
-const projectList = document.getElementById("project-list");
-const taskFormContainer = document.getElementById("task-form-container");
-const taskList = document.getElementById("task-list");
-const backButton = document.getElementById("back-button");
-
-const projects = [];
-
-function displayTasks(projectIndex) {
-  taskList.innerHTML = "";
-
-  if (projects[projectIndex].tasks.length === 0) {
-    const noTaskMessage = document.createElement("p");
-    noTaskMessage.textContent = "Nenhuma tarefa adicionada.";
-    taskList.appendChild(noTaskMessage);
-  } else {
-    projects[projectIndex].tasks.forEach((task, taskIndex) => {
-      const taskElement = document.createElement("div");
-      taskElement.classList.add("task");
-      taskElement.innerHTML = `
-        <h3>${task.title}</h3>
-        <p>${task.description}</p>
-        <input type="checkbox" id="task-${taskIndex}" data-project="${projectIndex}" data-task="${taskIndex}">
-        <label for="task-${taskIndex}">Concluída</label>
-      `;
-      taskList.appendChild(taskElement);
-    });
-  }
-}
+let projects = [];
 
 function addProject(name, description, dueDate) {
   const project = {
@@ -54,93 +23,215 @@ function addProject(name, description, dueDate) {
   displayProjects();
 }
 
-function addTask(projectIndex, title, description) {
-  const task = {
-    title: title,
-    description: description,
-    completed: false,
-  };
-
-  projects[projectIndex].tasks.push(task);
-  displayTasks(projectIndex);
+function deleteProject(index) {
+  if (index >= 0 && index < projects.length) {
+    projects.splice(index, 1);
+    displayProjects();
+    displayTasks(-1);
+  }
 }
 
-function deleteProject(projectIndex) {
-  projects.splice(projectIndex, 1);
-  displayProjects();
-  taskFormContainer.style.display = "none";
-  projectForm.style.display = "block";
+function addTask(projectIndex, title, description) {
+  if (projectIndex >= 0 && projectIndex < projects.length) {
+    const task = {
+      title: title,
+      description: description,
+      completed: false,
+    };
+
+    projects[projectIndex].tasks.push(task);
+    displayTasks(projectIndex);
+  }
+}
+
+function deleteTask(projectIndex, taskIndex) {
+  if (
+    projectIndex >= 0 &&
+    projectIndex < projects.length &&
+    taskIndex >= 0 &&
+    taskIndex < projects[projectIndex].tasks.length
+  ) {
+    projects[projectIndex].tasks.splice(taskIndex, 1);
+    displayTasks(projectIndex);
+  }
 }
 
 function deleteCompletedTasks(projectIndex) {
-  projects[projectIndex].tasks = projects[projectIndex].tasks.filter((task) => !task.completed);
-  displayTasks(projectIndex);
+  if (projectIndex >= 0 && projectIndex < projects.length) {
+    projects[projectIndex].tasks = projects[projectIndex].tasks.filter(
+      (task) => !task.completed
+    );
+    displayTasks(projectIndex);
+  }
+}
+
+function toggleTaskStatus(projectIndex, taskIndex) {
+  if (
+    projectIndex >= 0 &&
+    projectIndex < projects.length &&
+    taskIndex >= 0 &&
+    taskIndex < projects[projectIndex].tasks.length
+  ) {
+    projects[projectIndex].tasks[taskIndex].completed = !projects[projectIndex]
+      .tasks[taskIndex].completed;
+    displayTasks(projectIndex);
+  }
+}
+
+function createTaskForm(projectIndex) {
+  const taskFormContainer = document.getElementById("task-form-container");
+  taskFormContainer.innerHTML = ""; // Limpa o conteúdo anterior
+
+  const taskForm = document.createElement("form");
+  taskForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const title = document.getElementById("task-title").value;
+    const description = document.getElementById("task-description").value;
+    addTask(projectIndex, title, description);
+    taskForm.reset();
+  });
+
+  const titleLabel = document.createElement("label");
+  titleLabel.textContent = "Título da Tarefa:";
+  const titleInput = document.createElement("input");
+  titleInput.type = "text";
+  titleInput.id = "task-title";
+  titleInput.required = true;
+  taskForm.appendChild(titleLabel);
+  taskForm.appendChild(titleInput);
+
+  const descriptionLabel = document.createElement("label");
+  descriptionLabel.textContent = "Descrição da Tarefa:";
+  const descriptionTextarea = document.createElement("textarea");
+  descriptionTextarea.id = "task-description";
+  descriptionTextarea.required = true;
+  taskForm.appendChild(descriptionLabel);
+  taskForm.appendChild(descriptionTextarea);
+
+  const submitButton = document.createElement("button");
+  submitButton.type = "submit";
+  submitButton.textContent = "Adicionar Tarefa";
+  taskForm.appendChild(submitButton);
+
+  const cancelButton = document.createElement("button");
+  cancelButton.type = "button";
+  cancelButton.textContent = "Cancelar";
+  cancelButton.addEventListener("click", function () {
+    taskForm.reset();
+    taskFormContainer.style.display = "none";
+  });
+  taskForm.appendChild(cancelButton);
+
+  taskFormContainer.appendChild(taskForm);
+  taskFormContainer.style.display = "block";
 }
 
 function displayProjects() {
-  projectList.innerHTML = "";
+  const projectList = document.getElementById("project-list");
+  projectList.innerHTML = ""; // Limpa o conteúdo anterior
 
   projects.forEach((project, index) => {
     const projectElement = document.createElement("div");
     projectElement.classList.add("project");
-    projectElement.innerHTML = `
-      <h2>${project.name}</h2>
-      <p>${project.description}</p>
-      <p>Data de Vencimento: ${project.dueDate}</p>
-      <button type="button" onclick="deleteProject(${index})">Excluir Projeto</button>
-    `;
     projectElement.addEventListener("click", function () {
-      taskFormContainer.innerHTML = "";
-      taskFormContainer.appendChild(createTaskForm(index));
       displayTasks(index);
-      projectForm.style.display = "none";
-      taskFormContainer.style.display = "block";
     });
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Excluir Projeto";
+    deleteButton.addEventListener("click", function (event) {
+      event.stopPropagation();
+      deleteProject(index);
+    });
+
+    const nameElement = document.createElement("h3");
+    nameElement.textContent = project.name;
+
+    const descriptionElement = document.createElement("p");
+    descriptionElement.textContent = project.description;
+
+    const dueDateElement = document.createElement("p");
+    dueDateElement.textContent = "Data de Vencimento: " + project.dueDate;
+
+    projectElement.appendChild(deleteButton);
+    projectElement.appendChild(nameElement);
+    projectElement.appendChild(descriptionElement);
+    projectElement.appendChild(dueDateElement);
+
     projectList.appendChild(projectElement);
   });
 }
 
-function createTaskForm(projectIndex) {
-  const taskForm = document.createElement("form");
-  taskForm.innerHTML = `
-    <label for="task-title">Título da Tarefa:</label>
-    <input type="text" id="
+function displayTasks(projectIndex) {
+  const taskList = document.getElementById("task-list");
+  taskList.innerHTML = ""; // Limpa o conteúdo anterior
 
-task-title" name="task-title" required>
+  if (projectIndex >= 0 && projectIndex < projects.length) {
+    const selectedProject = projects[projectIndex];
 
-    <label for="task-description">Descrição da Tarefa:</label>
-    <textarea id="task-description" name="task-description" required></textarea>
+    const projectDescriptionElement = document.createElement("p");
+    projectDescriptionElement.textContent = "Descrição: " + selectedProject.description;
+    taskList.appendChild(projectDescriptionElement);
 
-    <button type="submit">Adicionar Tarefa</button>
-    <button type="button" onclick="deleteCompletedTasks(${projectIndex})">Excluir Tarefas Concluídas</button>
-    <button type="button" id="back-button">Voltar para Lista de Projetos</button>
-  `;
+    const taskHeader = document.createElement("h3");
+    taskHeader.textContent = "Tarefas:";
+    taskList.appendChild(taskHeader);
 
-  taskForm.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const taskTitle = taskForm.elements["task-title"].value;
-    const taskDescription = taskForm.elements["task-description"].value;
-    addTask(projectIndex, taskTitle, taskDescription);
-    taskForm.reset();
-  });
+    if (selectedProject.tasks.length === 0) {
+      const noTasksMessage = document.createElement("p");
+      noTasksMessage.textContent = "Nenhuma tarefa encontrada.";
+      taskList.appendChild(noTasksMessage);
+    } else {
+      selectedProject.tasks.forEach((task, index) => {
+        const taskElement = document.createElement("div");
+        taskElement.classList.add("task");
 
-  return taskForm;
+        const taskTitleElement = document.createElement("h4");
+        taskTitleElement.textContent = task.title;
+
+        const taskDescriptionElement = document.createElement("p");
+        taskDescriptionElement.textContent = task.description;
+
+        const taskStatusElement = document.createElement("input");
+        taskStatusElement.type = "checkbox";
+        taskStatusElement.checked = task.completed;
+        taskStatusElement.addEventListener("change", function () {
+          toggleTaskStatus(projectIndex, index);
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Excluir";
+        deleteButton.addEventListener("click", function () {
+          deleteTask(projectIndex, index);
+        });
+
+        taskElement.appendChild(taskTitleElement);
+        taskElement.appendChild(taskDescriptionElement);
+        taskElement.appendChild(taskStatusElement);
+        taskElement.appendChild(deleteButton);
+        taskList.appendChild(taskElement);
+      });
+    }
+
+    const deleteCompletedButton = document.createElement("button");
+    deleteCompletedButton.textContent = "Excluir Tarefas Concluídas";
+    deleteCompletedButton.addEventListener("click", function () {
+      deleteCompletedTasks(projectIndex);
+    });
+    taskList.appendChild(deleteCompletedButton);
+
+    createTaskForm(projectIndex);
+  }
 }
 
-backButton.addEventListener("click", function () {
-  taskFormContainer.style.display = "none";
-  projectForm.style.display = "block";
-  backButton.style.display = "none";
-});
-
+const projectForm = document.getElementById("project-form");
 projectForm.addEventListener("submit", function (event) {
   event.preventDefault();
-  const projectName = projectNameInput.value;
-  const projectDesc = projectDescInput.value;
-  const dueDate = dueDateInput.value;
-  addProject(projectName, projectDesc, dueDate);
+  const name = document.getElementById("project-name").value;
+  const description = document.getElementById("project-description").value;
+  const dueDate = document.getElementById("due-date").value;
+  addProject(name, description, dueDate);
   projectForm.reset();
 });
 
 displayProjects();
-
