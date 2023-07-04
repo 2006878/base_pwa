@@ -1,6 +1,6 @@
 {
-  "short_name": "Meu PWA",
-  "name": "Meu primeiro Progressive Web App",
+  "short_name": "Gestão de projetos",
+  "name": "Seu projetos na palma da mão!",
   "icons": [
     {
       "src": "logo.png",
