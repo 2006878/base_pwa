@@ -8,6 +8,11 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  loadProjectsFromLocalStorage();
+  // Restante do código aqui
+});
+
 let projects = [];
 
 function addProject(name, description, dueDate) {
@@ -20,7 +25,8 @@ function addProject(name, description, dueDate) {
 
   projects.push(project);
   displayProjects();
-  hideProjectForm();
+  // hideProjectForm();
+  saveProjectsToLocalStorage();
 }
 
 function deleteProject(index) {
@@ -28,7 +34,12 @@ function deleteProject(index) {
     projects.splice(index, 1);
     displayProjects();
     displayTasks(-1);
+    saveProjectsToLocalStorage();
   }
+}
+
+function saveProjectsToLocalStorage() {
+  localStorage.setItem("projects", JSON.stringify(projects));
 }
 
 function addTask(projectIndex, title, description, responsible) {
@@ -42,6 +53,7 @@ function addTask(projectIndex, title, description, responsible) {
 
     projects[projectIndex].tasks.push(task);
     displayTasks(projectIndex);
+    saveProjectsToLocalStorage(); // Salva os projetos após a adição da tarefa
   }
 }
 
@@ -54,6 +66,7 @@ function deleteTask(projectIndex, taskIndex) {
   ) {
     projects[projectIndex].tasks.splice(taskIndex, 1);
     displayTasks(projectIndex);
+    saveProjectsToLocalStorage(); // Salva os projetos após a exclusão da tarefa
   }
 }
 
@@ -63,6 +76,7 @@ function deleteCompletedTasks(projectIndex) {
       (task) => !task.completed
     );
     displayTasks(projectIndex);
+    saveProjectsToLocalStorage(); // Salva os projetos após a exclusão das tarefas concluídas
   }
 }
 
@@ -73,9 +87,9 @@ function toggleTaskStatus(projectIndex, taskIndex) {
     taskIndex >= 0 &&
     taskIndex < projects[projectIndex].tasks.length
   ) {
-    projects[projectIndex].tasks[taskIndex].completed = !projects[projectIndex]
-      .tasks[taskIndex].completed;
+    projects[projectIndex].tasks[taskIndex].completed = !projects[projectIndex].tasks[taskIndex].completed;
     displayTasks(projectIndex);
+    saveProjectsToLocalStorage();
   }
 }
 
@@ -137,18 +151,25 @@ function createTaskForm(projectIndex) {
   taskFormContainer.style.display = "block";
 }
 
-function hideProjectForm() {
-  const projectForm = document.getElementById("project-form");
-  const projectButtons = document.getElementById("project-buttons");
-  projectForm.reset();
-  projectForm.style.display = "none";
-  projectButtons.style.display = "block";
+function loadProjectsFromLocalStorage() {
+  const storedProjects = localStorage.getItem("projects");
+  if (storedProjects) {
+    projects = JSON.parse(storedProjects);
+  }
 }
+
+// function hideProjectForm() {
+//   const projectForm = document.getElementById("project-form");
+//   const projectButtons = document.getElementById("project-buttons");
+//   projectForm.reset();
+//   projectForm.style.display = "none";
+//   projectButtons.style.display = "block";
+// }
 
 function displayProjectForm() {
   const projectForm = document.getElementById("project-form");
   projectForm.style.display = "block";
-  hideButtons();
+  hideButtonNew();
 }
 
 function displayProjects() {
@@ -184,6 +205,7 @@ function displayProjects() {
     projectElement.appendChild(deleteButton);
   
     projectList.appendChild(projectElement);
+    hideButtonList();
   });
 }
 
@@ -194,7 +216,7 @@ function displayTasks(projectIndex) {
   if (projectIndex >= 0 && projectIndex < projects.length) {
     const selectedProject = projects[projectIndex];
 
-    const projectDescriptionElement = document.createElement("p");
+    const projectDescriptionElement = document.createElement("h2");
     projectDescriptionElement.textContent = "Projeto: " + selectedProject.name;
     taskList.appendChild(projectDescriptionElement);
 
@@ -218,7 +240,7 @@ function displayTasks(projectIndex) {
         taskDescriptionElement.textContent = task.description + " - ";
 
         const taskResponsibleElement = document.createElement("p");
-        taskResponsibleElement.textContent = task.responsible;
+        taskResponsibleElement.textContent = task.responsible + " ";
 
 
         const taskStatusElement = document.createElement("input");
@@ -257,9 +279,14 @@ projectForm.addEventListener("submit", function (event) {
   projectForm.reset();
 });
 
-function hideButtons(){
-  const projectButtons = document.getElementById("project-buttons");
-  projectButtons.style.display = "none";
+function hideButtonNew(){
+  const ButtonNew = document.getElementById("button-new");
+  ButtonNew.style.display = "none";
+}
+
+function hideButtonList(){
+  const ButtonList = document.getElementById("button-list");
+  ButtonList.style.display = "none";
 }
 
 // Adicionar eventos de clique para os botões
@@ -269,5 +296,10 @@ showProjectFormBtn.addEventListener("click", displayProjectForm);
 
 const showAllProjectsBtn = document.getElementById("show-all-projects-btn");
 showAllProjectsBtn.addEventListener("click", displayProjects);
+
+const clearBtn = document.getElementById("clear-btn");
+clearBtn.addEventListener("click", function () {
+  localStorage.clear()
+});
 
 displayProjects();

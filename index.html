@@ -19,6 +19,19 @@
         <h2>Bem-vindo à Plataforma de Gestão de Projetos</h2>
         <p>Aqui você pode gerenciar suas tarefas e projetos de forma eficiente.</p>
 
+        <!-- Formulário de adicionar tarefa -->
+        <div id="task-form-container" style="display: none;">
+            <!-- Aqui o formulário de tarefa será adicionado dinamicamente -->
+        </div>
+
+        <div id="task-list" style="margin: 1rem;">
+            <!-- Aqui serão exibidas as tarefas do projeto selecionado -->
+        </div>
+
+        <div id="project-list">
+            <!-- Aqui serão exibidos os projetos criados -->
+        </div>
+
         <form id="project-form">
             <label for="project-name">Nome do Projeto:</label>
             <input type="text" id="project-name" name="project-name" required>
@@ -32,22 +45,16 @@
             <button type="submit">Criar Projeto</button>
         </form>
 
-        <div id="project-list">
-            <!-- Aqui serão exibidos os projetos criados -->
+        <div id="button-new" style="display: none;">
+            <button id="show-project-form-btn">Novo Projeto</button></br>
         </div>
 
-        <!-- Formulário de adicionar tarefa -->
-        <div id="task-form-container" style="display: none;">
-            <!-- Aqui o formulário de tarefa será adicionado dinamicamente -->
-        </div>
-
-        <div id="task-list">
-            <!-- Aqui serão exibidas as tarefas do projeto selecionado -->
-        </div>
-
-        <div id="project-buttons" style="display: none;">
-            <button id="show-project-form-btn">Novo Projeto</button>
+        <div id="button-list">
             <button id="show-all-projects-btn">Lista de Projetos</button>
+        </div>
+
+        <div id ="button-clear">
+            <button id="clear-btn">Limpar toda a memória</button>
         </div>
 
     </main>
