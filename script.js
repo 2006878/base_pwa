@@ -21,6 +21,7 @@ function addProject(name, description, dueDate) {
 
   projects.push(project);
   displayProjects();
+  hideProjectForm();
 }
 
 function deleteProject(index) {
@@ -31,11 +32,12 @@ function deleteProject(index) {
   }
 }
 
-function addTask(projectIndex, title, description) {
+function addTask(projectIndex, title, description, responsible) {
   if (projectIndex >= 0 && projectIndex < projects.length) {
     const task = {
       title: title,
       description: description,
+      responsible: responsible,
       completed: false,
     };
 
@@ -87,7 +89,8 @@ function createTaskForm(projectIndex) {
     event.preventDefault();
     const title = document.getElementById("task-title").value;
     const description = document.getElementById("task-description").value;
-    addTask(projectIndex, title, description);
+    const responsible = document.getElementById("task-responsible").value;
+    addTask(projectIndex, title, description, responsible);
     taskForm.reset();
   });
 
@@ -108,6 +111,15 @@ function createTaskForm(projectIndex) {
   taskForm.appendChild(descriptionLabel);
   taskForm.appendChild(descriptionTextarea);
 
+  const responsibleLabel = document.createElement("label");
+  responsibleLabel.textContent = "Responsável pela Tarefa:";
+  const responsibleInput = document.createElement("input");
+  responsibleInput.type = "text";
+  responsibleInput.id = "task-responsible";
+  responsibleInput.required = true;
+  taskForm.appendChild(responsibleLabel);
+  taskForm.appendChild(responsibleInput);
+
   const submitButton = document.createElement("button");
   submitButton.type = "submit";
   submitButton.textContent = "Adicionar Tarefa";
@@ -115,7 +127,7 @@ function createTaskForm(projectIndex) {
 
   const cancelButton = document.createElement("button");
   cancelButton.type = "button";
-  cancelButton.textContent = "Cancelar";
+  cancelButton.textContent = "Ocultar formulário de tarefas";
   cancelButton.addEventListener("click", function () {
     taskForm.reset();
     taskFormContainer.style.display = "none";
@@ -124,6 +136,12 @@ function createTaskForm(projectIndex) {
 
   taskFormContainer.appendChild(taskForm);
   taskFormContainer.style.display = "block";
+}
+
+function hideProjectForm() {
+  const projectForm = document.getElementById("project-form");
+  projectForm.reset();
+  projectForm.style.display = "none";
 }
 
 function displayProjects() {
@@ -153,11 +171,11 @@ function displayProjects() {
     const dueDateElement = document.createElement("p");
     dueDateElement.textContent = "Data de Vencimento: " + project.dueDate;
 
-    projectElement.appendChild(deleteButton);
     projectElement.appendChild(nameElement);
     projectElement.appendChild(descriptionElement);
     projectElement.appendChild(dueDateElement);
-
+    projectElement.appendChild(deleteButton);
+  
     projectList.appendChild(projectElement);
   });
 }
@@ -170,7 +188,7 @@ function displayTasks(projectIndex) {
     const selectedProject = projects[projectIndex];
 
     const projectDescriptionElement = document.createElement("p");
-    projectDescriptionElement.textContent = "Descrição: " + selectedProject.description;
+    projectDescriptionElement.textContent = "Projeto: " + selectedProject.name;
     taskList.appendChild(projectDescriptionElement);
 
     const taskHeader = document.createElement("h3");
@@ -187,10 +205,14 @@ function displayTasks(projectIndex) {
         taskElement.classList.add("task");
 
         const taskTitleElement = document.createElement("h4");
-        taskTitleElement.textContent = task.title;
+        taskTitleElement.textContent = task.title + " : ";
 
         const taskDescriptionElement = document.createElement("p");
-        taskDescriptionElement.textContent = task.description;
+        taskDescriptionElement.textContent = task.description + " - ";
+
+        const taskResponsibleElement = document.createElement("p");
+        taskResponsibleElement.textContent = task.responsible;
+
 
         const taskStatusElement = document.createElement("input");
         taskStatusElement.type = "checkbox";
@@ -199,16 +221,10 @@ function displayTasks(projectIndex) {
           toggleTaskStatus(projectIndex, index);
         });
 
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Excluir";
-        deleteButton.addEventListener("click", function () {
-          deleteTask(projectIndex, index);
-        });
-
         taskElement.appendChild(taskTitleElement);
         taskElement.appendChild(taskDescriptionElement);
+        taskElement.appendChild(taskResponsibleElement);
         taskElement.appendChild(taskStatusElement);
-        taskElement.appendChild(deleteButton);
         taskList.appendChild(taskElement);
       });
     }
