@@ -8,7 +8,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-
 let projects = [];
 
 function addProject(name, description, dueDate) {
@@ -140,8 +139,16 @@ function createTaskForm(projectIndex) {
 
 function hideProjectForm() {
   const projectForm = document.getElementById("project-form");
+  const projectButtons = document.getElementById("project-buttons");
   projectForm.reset();
   projectForm.style.display = "none";
+  projectButtons.style.display = "block";
+}
+
+function displayProjectForm() {
+  const projectForm = document.getElementById("project-form");
+  projectForm.style.display = "block";
+  hideButtons();
 }
 
 function displayProjects() {
@@ -249,5 +256,18 @@ projectForm.addEventListener("submit", function (event) {
   addProject(name, description, dueDate);
   projectForm.reset();
 });
+
+function hideButtons(){
+  const projectButtons = document.getElementById("project-buttons");
+  projectButtons.style.display = "none";
+}
+
+// Adicionar eventos de clique para os botões
+
+const showProjectFormBtn = document.getElementById("show-project-form-btn");
+showProjectFormBtn.addEventListener("click", displayProjectForm);
+
+const showAllProjectsBtn = document.getElementById("show-all-projects-btn");
+showAllProjectsBtn.addEventListener("click", displayProjects);
 
 displayProjects();
